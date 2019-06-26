@@ -25,21 +25,27 @@ namespace SemWork
     public partial class MainWindow : Window
     {
         public static MainWindow mainWindow;
+        public static Game game;
+        public bool isRunning;
+
         public string GameStatusBar { get { return statusBar.Text; } set { statusBar.Text = value; } }
 
         public MainWindow()
         {
             InitializeComponent();
             mainWindow = this;
-            DataContext = new Game();
+            isRunning = false;
+            game = new Game();
+            DataContext = game;
         }
 
 
         private async void Connect_Click(object sender, RoutedEventArgs e) 
         {
-            if (!(DataContext as Game).IsStarted)
+            if (!isRunning)
             {
-                (DataContext as Game).Connect(tb_address.Text, tb_nickname.Text);
+                isRunning = true;
+                game.Connect(tb_address.Text, tb_nickname.Text);
                 var progress = new Progress<string>(s => statusBar.Text = s);
                 await Task.Factory.StartNew(() => Update(progress), TaskCreationOptions.LongRunning);
             }          
@@ -50,24 +56,31 @@ namespace SemWork
 
         private void Update(IProgress<string> progress)
         {
-            while (true)
+            while (isRunning)
             {
-                (DataContext as Game).GetTurn();
+                if (game.IsYourTurn == false)
+                {
+                    game.GetTurn(progress);
+                }
             }
         }
 
         private void RollClick(object sender, RoutedEventArgs e)
         {
-            if((DataContext as Game).IsStarted)
+            if (game.IsYourTurn && game.CanRoll && isRunning) 
             {
-                if((DataContext as Game).CanRoll)
-                {
-                    int dice = (DataContext as Game).Roll6();
+                    int dice = game.Roll6();
                     GameStatusBar = "You rolled " + dice;
-                }
-                
             }
                 
+        }
+
+        private void Surrender_Click(object sender, RoutedEventArgs e)
+        {
+            if(game.IsYourTurn && isRunning)
+            {
+                game.SendSurrender();
+            }
         }
     }
 }

@@ -26,5 +26,12 @@ namespace SemWork
         {
             RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
+
+        public bool IsInSquare(SquareData s1, SquareData s2)
+        {
+            if (this.Row >= s1.Row && this.Row <= s2.Row && this.Column >= s1.Column && this.Column <= s2.Column)
+                return true;
+            return false;
+        }
     }
 }

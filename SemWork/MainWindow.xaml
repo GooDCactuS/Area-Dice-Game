@@ -9,7 +9,7 @@
         <TextBox Name="tb_nickname" HorizontalAlignment="Left" Height="23" Margin="10,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="Player" />
         <Button Content="Присоединиться" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="120" Click="Connect_Click"/>
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="641" Margin="250,10,10,10" Stroke="Black" VerticalAlignment="Top" Width="642"/>
-        <ItemsControl ItemsSource="{Binding Squares}" Margin="250,10,10,10">
+        <ItemsControl ItemsSource="{Binding Squares}" Margin="250,10,10,10" Background="Black">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Rows="64" Columns="64"/>
@@ -20,7 +20,7 @@
                 <DataTemplate>
                     <Button Name="Square"
                             Command="{Binding DataContext.SquareClickCommand,  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                            CommandParameter="{Binding}">
+                            CommandParameter="{Binding}" BorderBrush="Black">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Grid Background="{TemplateBinding Background}"/>
@@ -63,6 +63,7 @@
         </StatusBar>
         <Button Content="Бросить кубик" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="10,187,0,0" Click="RollClick"/>
         <Label Name="tb_cube" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,211,0,0" Width="120"/>
+        <Button Content="Сдаться" HorizontalAlignment="Left" Margin="10,481,0,0" VerticalAlignment="Top" Width="75" Click="Surrender_Click"/>
 
     </Grid>
 
