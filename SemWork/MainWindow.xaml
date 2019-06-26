@@ -1,0 +1,69 @@
+﻿<Window x:Class="SemWork.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="660" Width="900">
+    <Grid>
+        <Label Content="IP адрес сервера" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="tb_address" HorizontalAlignment="Left" Height="23" Margin="10,41,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="192.168.0.119"/>
+        <Label Content="Никнейм" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="tb_nickname" HorizontalAlignment="Left" Height="23" Margin="10,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="Player" />
+        <Button Content="Присоединиться" HorizontalAlignment="Left" Margin="10,149,0,0" VerticalAlignment="Top" Width="120" Click="Connect_Click"/>
+        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="641" Margin="250,10,10,10" Stroke="Black" VerticalAlignment="Top" Width="642"/>
+        <ItemsControl ItemsSource="{Binding Squares}" Margin="250,10,10,10">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="64" Columns="64"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Name="Square"
+                            Command="{Binding DataContext.SquareClickCommand,  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid Background="{TemplateBinding Background}"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Color}" Value="White">
+                            <Setter TargetName="Square" Property="Background" Value="Wheat"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Color}" Value="Black">
+                            <Setter TargetName="Square" Property="Background" Value="Black"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Color}" Value="Blue">
+                            <Setter TargetName="Square" Property="Background" Value="Blue"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Color}" Value="Yellow">
+                            <Setter TargetName="Square" Property="Background" Value="Yellow"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Color}" Value="Red">
+                            <Setter TargetName="Square" Property="Background" Value="Red"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Color}" Value="Green">
+                            <Setter TargetName="Square" Property="Background" Value="Green"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StatusBar HorizontalAlignment="Left" Height="94" Margin="10,526,0,0" VerticalAlignment="Top" Width="213">
+            <StatusBarItem>
+                <TextBlock Name="statusBar"/>
+            </StatusBarItem>
+        </StatusBar>
+        <Button Content="Бросить кубик" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="10,187,0,0" Click="RollClick"/>
+        <Label Name="tb_cube" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,211,0,0" Width="120"/>
+
+    </Grid>
+
+</Window>
