@@ -92,7 +92,7 @@ namespace SemWork
                 var ServerEp = new IPEndPoint(IPAddress.Any, 0);
 
                 Client.EnableBroadcast = true;
-                Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
+                Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Any, 8888));
 
                 var ServerResponseData = Client.Receive(ref ServerEp);
                 tb_address.Text = ServerEp.Address.ToString();
