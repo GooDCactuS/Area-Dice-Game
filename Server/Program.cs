@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -15,13 +16,12 @@ namespace Server
         public static int[,] field;
 
         static int currentPlayers = 4;
+        static IPAddress ipAddress;
+        static IPEndPoint localEndPoint;
 
         public static void StartListening()
         {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-            
+
             field = new int[64, 64];
             for (int ii = 0; ii < 64; ii++)
                 for (int jj = 0; jj < 64; jj++)
@@ -55,11 +55,11 @@ namespace Server
                     clients[ii] = new ClientInfo();
                     clients[ii].ClientSocket = listener.Accept();
 
-                    string data = clients[ii].GetNickName();
-                    Console.WriteLine("{0} connected.", data);
+                    clients[ii].GetNickName();
+                    Console.WriteLine("{0} connected.", clients[ii].NickName);
 
-                    data = clients[ii].SetColor(ii);
-                    Console.WriteLine("ColorInfo sent: " + data);
+                    clients[ii].SetColor(ii);
+                    Console.WriteLine("ColorInfo sent: " + clients[ii].Color);
                 }
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace Server
                         if (!clients[ii].Surrended)
                         {
                             Console.WriteLine("Waiting for {0} choice...", clients[ii].NickName);
-                            if (!(clients[ii].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[ii].ClientSocket.Available==0))
+                            if (!(clients[ii].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[ii].ClientSocket.Available == 0))
                             {
                                 clients[ii].SendChoice();
                                 string info = clients[ii].GetNewSquares();
@@ -94,7 +94,7 @@ namespace Server
                                     }
                                 }
                             }
-                            
+
                         }
                     }
                     int surrendedPlayers = 0;
@@ -117,7 +117,7 @@ namespace Server
                                 clients[p].SendWon();
 
                             clients[p].ClientSocket.Shutdown(SocketShutdown.Both);
-                            clients[p].ClientSocket.Close();                            
+                            clients[p].ClientSocket.Close();
                         }
                     }
                 }
@@ -153,8 +153,40 @@ namespace Server
             return pl;
         }
 
+        private static void StartUdp()
+        {
+            Console.WriteLine("Udp started");
+            var Server = new UdpClient(8888);
+            var ResponseData = Encoding.ASCII.GetBytes(ipAddress.ToString());
+
+            while (true)
+            {
+                var ClientEp = new IPEndPoint(IPAddress.Any, 0);
+                var ClientRequestData = Server.Receive(ref ClientEp);
+                var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
+
+                Console.WriteLine("Received {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
+                Server.Send(ResponseData, ResponseData.Length, ClientEp);
+            }
+
+        }
+
+        static void SetIP()
+        {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            ipAddress = ipHostInfo.AddressList[0];
+            localEndPoint = new IPEndPoint(ipAddress, 11000);
+        }
+
+        static async void StartUdpServer()
+        {
+            await Task.Factory.StartNew(() => StartUdp(), TaskCreationOptions.LongRunning);
+        }
+
         static void Main(string[] args)
         {
+            SetIP();
+            StartUdpServer();
             StartListening();
             PlayersConnection();
             GameLoop();

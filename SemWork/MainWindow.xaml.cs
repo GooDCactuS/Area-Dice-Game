@@ -82,5 +82,22 @@ namespace SemWork
                 game.SendSurrender();
             }
         }
+
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            if(!isRunning)
+            {
+                var Client = new UdpClient();
+                var RequestData = Encoding.ASCII.GetBytes("NeedServer");
+                var ServerEp = new IPEndPoint(IPAddress.Any, 0);
+
+                Client.EnableBroadcast = true;
+                Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
+
+                var ServerResponseData = Client.Receive(ref ServerEp);
+                tb_address.Text = ServerEp.Address.ToString();
+                Client.Close();
+            }
+        }
     }
 }
