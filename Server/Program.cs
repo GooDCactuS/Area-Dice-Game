@@ -81,22 +81,26 @@ namespace Server
                         if (!clients[ii].Surrended)
                         {
                             Console.WriteLine("Waiting for {0} choice...", clients[ii].NickName);
-                            clients[ii].SendChoice();
-                            string info = clients[ii].GetNewSquares();
-                            if (!clients[ii].Surrended)
+                            if (!(clients[ii].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[ii].ClientSocket.Available==0))
                             {
-                                for (int jj = 0; jj < currentPlayers; jj++)
+                                clients[ii].SendChoice();
+                                string info = clients[ii].GetNewSquares();
+                                if (!clients[ii].Surrended)
                                 {
-                                    if (ii != jj)
-                                        clients[jj].SendNewSquaresInfo(info);
+                                    for (int jj = 0; jj < currentPlayers; jj++)
+                                    {
+                                        if (ii != jj && !(clients[jj].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[jj].ClientSocket.Available == 0))
+                                            clients[jj].SendNewSquaresInfo(info);
+                                    }
                                 }
                             }
+                            
                         }
                     }
                     int surrendedPlayers = 0;
                     for (int ii = 0; ii < currentPlayers; ii++)
                     {
-                        if (clients[ii].Surrended)
+                        if (clients[ii].Surrended || (clients[ii].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[ii].ClientSocket.Available == 0))
                             surrendedPlayers++;
                     }
                     if (surrendedPlayers == currentPlayers)
@@ -105,6 +109,8 @@ namespace Server
                         int winner = CalculatePoints();
                         for (int p = 0; p < currentPlayers; p++)
                         {
+                            if (clients[p].ClientSocket.Poll(0, SelectMode.SelectRead) && clients[p].ClientSocket.Available == 0)
+                                continue;
                             if (p != winner)
                                 clients[p].SendLost();
                             else

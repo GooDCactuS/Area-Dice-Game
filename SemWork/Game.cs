@@ -62,17 +62,44 @@ namespace SemWork
                 {
                     if ((square.Row == 0 || square.Row == 63) && (square.Column == 0 || square.Column == 63)) 
                     {
-                        square.Color = "Black";
-                        selSquare = new SquareData() { Column = square.Column, Color = square.Color, Row = square.Row};
-                    }
-                    foreach (SquareData item in Squares)
-                    {
-                        if (item.Color == UserColor && (Math.Abs(item.Column - square.Column) == 1 || Math.Abs(item.Row - square.Row) == 1))
+                        if (dice != 1)
                         {
                             square.Color = "Black";
                             selSquare = new SquareData() { Column = square.Column, Color = square.Color, Row = square.Row };
                         }
+                        else if (dice == 1)
+                        {
+                            string msg = Recolor1Square(square, UserColor);
+                            SendMsg(msg, (int)MsgStatus.Chosen1);
+                            IsYourTurn = false;
+                        }
                     }
+                    else
+                    {
+                        foreach (SquareData item in Squares)
+                        {
+                            if (item.Color == UserColor)
+                            {
+                                if ((Math.Abs(item.Column - square.Column) == 1 && Math.Abs(item.Row - square.Row) == 0) || (Math.Abs(item.Column - square.Column) == 0 && Math.Abs(item.Row - square.Row) == 1))
+                                {
+                                    if(dice!=1)
+                                    {
+
+                                        square.Color = "Black";
+                                        selSquare = new SquareData() { Column = square.Column, Color = square.Color, Row = square.Row };
+                                    }
+                                    else if (dice == 1)
+                                    {
+                                        string msg = Recolor1Square(square, UserColor);
+                                        SendMsg(msg, (int)MsgStatus.Chosen1);
+                                        IsYourTurn = false;
+                                    }
+                                    break;
+                                }                               
+                            }
+                        }
+                    }
+                    
                 }
                 else
                 {
@@ -87,12 +114,7 @@ namespace SemWork
                         }
                     }
                 }
-                if(dice == 1)
-                {
-                    string msg = Recolor1Square(square, UserColor);
-                    SendMsg(msg, (int)MsgStatus.Chosen1);
-                    IsYourTurn = false;
-                }
+                
             }
         }
 
@@ -101,7 +123,7 @@ namespace SemWork
             foreach(SquareData item in Squares)
                 if(item.Row == s.Row && item.Column == s.Column)
                 {
-                    s.Color = color;
+                    item.Color = color;
                     return s.Column + " " + s.Row + " ";
                 }
             return s.Column + " " + s.Row + " ";
@@ -168,8 +190,7 @@ namespace SemWork
             }
             try
             {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress iPAddress = ipHostInfo.AddressList[0];
+                IPAddress iPAddress = IPAddress.Parse(address);
                 IPEndPoint remoteEP = new IPEndPoint(IPAddress.Parse(address), 11000);
 
                 sender = new Socket(iPAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
